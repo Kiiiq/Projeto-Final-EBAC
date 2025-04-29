@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using DG.Tweening;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -25,11 +28,10 @@ public class PlayerMove : MonoBehaviour
 
     [Header("Dash/Sprint")]
     public float sprintMultiplier = 2f;
-    public float DashMultiplier = 5f;
-    public float dashTime = 0.1f;
-    public float dashCooldown = 0.5f;
+    public float DashMultiplier = 3f;
+    public float dashTime = 0.2f;
+    public float dashCooldown = 0.3f;
 
-    private float pressingTime = 0f;
     [SerializeField] bool canDash = true;
     [SerializeField] bool canRun = true;
 
@@ -39,28 +41,51 @@ public class PlayerMove : MonoBehaviour
     [Header ("References")]
     public GameObject playerSprite;
     public Animator animator;
-    public Transform camera;
+    public new Transform camera;
+    public GroundChecker groundCheck;
+    
 
 
-    [Header("KeyCodes")]
-    public KeyCode jumpKey = KeyCode.Space;
-    public KeyCode runKey = KeyCode.LeftShift;
+    [Header("Inputs")]
+
+    public InputActionReference actionMove;
+    public InputActionReference actionJump;
+    public InputActionReference actionDash;
+    public InputActionReference actionSprint;
 
 
 
     // Update is called once per frame
     void Update()
     {
+        
         charWalk();
         charJump();
-        dashOrSprint();
-        if ( characterController.isGrounded)
+        dash();
+        charSprint();
+        
+        
+        gravity();
+        if ( groundCheck.IsGrounded())
         {
             canJump = true;
-            
             canRun = true;
-            animator.SetBool("Jumping", false);
+            animator.SetBool("Land", true);
         }
+
+    }
+
+
+    public void gravity()
+    {
+        if (!groundCheck.IsGrounded())
+        {
+
+            vSpeed -= gravityForce * Time.deltaTime;
+
+        }
+
+        characterController.Move(new Vector3(0, vSpeed * Time.deltaTime, 0));
 
     }
 
@@ -68,14 +93,14 @@ public class PlayerMove : MonoBehaviour
     public void charWalk()
     {
 
-        var inputAxisVertical = Input.GetAxis("Vertical");
-        var inputAxisHorizontal = Input.GetAxis("Horizontal");
+        var playerInput = actionMove.action.ReadValue<Vector2>();
+        //var inputAxisHorizontal = Input.GetAxis("Horizontal");
 
         Vector3 forward = camera.TransformDirection(Vector3.forward);
         Vector3 right = camera.TransformDirection(Vector3.right);
 
-        Vector3 ForwardRelative = new Vector3(forward.x, 0, forward.z)*inputAxisVertical;
-        Vector3 RightRelative = new Vector3(right.x, 0, right.z) * inputAxisHorizontal;
+        Vector3 ForwardRelative = new Vector3(forward.x, 0, forward.z)* playerInput.y;
+        Vector3 RightRelative = new Vector3(right.x, 0, right.z) * playerInput.x;
 
 
         Vector3 moveDirection = ForwardRelative+RightRelative;
@@ -96,50 +121,38 @@ public class PlayerMove : MonoBehaviour
     }
     #endregion
 
-
     #region Jump
     public void charJump()
-    {
-        float jumpspeed;
+    {     
 
-        
-
-        if (Input.GetKeyDown(jumpKey) && canJump) {
+        if (actionJump.action.IsPressed() && canJump) {
             time = Time.time;
             canJump = false;
-            animator.SetBool("Jumping", true);
+            animator.SetBool("Jump", true);
+            animator.SetBool("Land", false);
         }
        float timeleft = (Time.time - time);
-        if (Input.GetKey(jumpKey)&& jumpTime>timeleft)
+        if (actionJump.action.IsPressed() && jumpTime>timeleft)
         {
             vSpeed = jumpForce;
-            characterController.Move(new Vector3(0, jumpTime* jumpForce * Time.deltaTime, 0));
-        } 
-            gravity();
-            coyotteJump();
-
-
-    }
-
-    public void gravity()
-    {
-        if (!characterController.isGrounded)
+            characterController.Move(new Vector3(0, jumpTime * jumpForce * Time.deltaTime, 0));
+        } else
         {
-            if (canJump) { vSpeed = 0; }
-            
-            vSpeed -= gravityForce * Time.deltaTime;
-            characterController.Move(new Vector3(0, vSpeed * Time.deltaTime, 0));
+            animator.SetBool("Jump", false);
         }
+            coyotteJump();
     }
 
     public void coyotteJump()
     {
         float timetojump;
-        if (!characterController.isGrounded)
+        if (!groundCheck.IsGrounded())
         {
+            
             timetojump = Time.time;
             if (Time.time - time > coyoteTime)
             {
+                //canDash = false;
                 canJump = false;
                 canRun = false;
             }
@@ -151,28 +164,14 @@ public class PlayerMove : MonoBehaviour
     }
     #endregion
 
+    #region Dash
 
-    #region Dash/Sprint
-
-    public void dashOrSprint()
+    public void dash()
     {
-
-        if (Input.GetKeyDown(runKey) && canDash)
+        
+        if (actionDash.action.triggered && canDash && groundCheck.IsGrounded())
         {
-            Debug.Log("Pressed");
-            pressingTime = Time.time;
-        }
-        float timeSincePressed = Time.time - pressingTime;
-
-        //Debug.Log(timeSincePressed);
-
-        if (Input.GetKeyUp(runKey) && Time.time-pressingTime <1 && canDash)
-        {
-            Debug.Log("Dash");
             StartCoroutine(CharDash());
-        } else if (Input.GetKey(runKey) && canRun)
-        {
-            charSprint();
         }
     }
 
@@ -190,19 +189,28 @@ public class PlayerMove : MonoBehaviour
         canDash = true;
     }
 
+    #endregion
+
+    #region Sprint
+
+   
     public void charSprint()
     {
-        if (Input.GetKey(runKey))
+        actionSprint.action.performed += ctx =>
         {
-            
-            speed = sprintMultiplier*defaultSpeed;
-        }
-        if (Input.GetKeyUp(runKey))
+            if (canRun && groundCheck.IsGrounded())
+            {
+                speed = sprintMultiplier * defaultSpeed;
+                animator.SetBool("Sprint", true);
+            }
+        };
+
+        actionSprint.action.canceled += ctx =>
         {
             speed = defaultSpeed;
+            animator.SetBool("Sprint", false);
             canRun = false;
-        }
+        };
     }
-
     #endregion
 }
