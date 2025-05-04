@@ -6,15 +6,19 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEditor.Experimental.GraphView;
 
 public class PlayerMove : MonoBehaviour
 {
+    #region Variables
+
     public CharacterController characterController;
 
     [Header("Walk")]
     public float defaultSpeed = 1f;
     [SerializeField] private float speed = 10f;
     public float gravityForce = 9.8f;
+    public float defendingSpeed = 0.5f;
 
 
     [Header("Jump")]
@@ -26,11 +30,16 @@ public class PlayerMove : MonoBehaviour
     
     private float vSpeed = 0f;
 
-    [Header("Dash/Sprint")]
-    public float sprintMultiplier = 2f;
+    [Header("Dash")]
     public float DashMultiplier = 3f;
     public float dashTime = 0.2f;
     public float dashCooldown = 0.3f;
+    public float dashStaminaCost = 15f;
+
+    [Header("Sprint")]
+    public float sprintMultiplier = 2f;
+    public float sprintStaminaCost = 10f;
+    private bool isSprinting = false;
 
     [SerializeField] bool canDash = true;
     [SerializeField] bool canRun = true;
@@ -43,7 +52,9 @@ public class PlayerMove : MonoBehaviour
     public Animator animator;
     public new Transform camera;
     public GroundChecker groundCheck;
-    
+    public MeleeCombat meleeCombat;
+    public StaminaScript stamina;
+
 
 
     [Header("Inputs")]
@@ -53,20 +64,41 @@ public class PlayerMove : MonoBehaviour
     public InputActionReference actionDash;
     public InputActionReference actionSprint;
 
+    #endregion
 
-
+    #region General
     // Update is called once per frame
     void Update()
     {
-        
-        charWalk();
-        charJump();
-        dash();
-        charSprint();
-        
-        
+        if (meleeCombat != null)
+        {
+            if (!meleeCombat.IsAttacking() && !meleeCombat.IsDefending())
+            {
+                charJump();
+                dash();
+                charSprint();
+                charWalk();
+
+            }
+        }
+        else
+        {
+            charWalk();
+            charJump();
+            dash();
+            charSprint();
+            
+
+        }
+
+        if (isSprinting)
+        {
+            sprint();
+        }
+
         gravity();
-        if ( groundCheck.IsGrounded())
+        
+        if (groundCheck.IsGrounded())
         {
             canJump = true;
             canRun = true;
@@ -74,7 +106,6 @@ public class PlayerMove : MonoBehaviour
         }
 
     }
-
 
     public void gravity()
     {
@@ -88,6 +119,7 @@ public class PlayerMove : MonoBehaviour
         characterController.Move(new Vector3(0, vSpeed * Time.deltaTime, 0));
 
     }
+    #endregion
 
     #region Walk
     public void charWalk()
@@ -169,14 +201,14 @@ public class PlayerMove : MonoBehaviour
     public void dash()
     {
         
-        if (actionDash.action.triggered && canDash && groundCheck.IsGrounded())
+        if (actionDash.action.triggered && canDash && groundCheck.IsGrounded() && stamina.UseStamina(dashStaminaCost))
         {
             StartCoroutine(CharDash());
         }
     }
 
     IEnumerator CharDash()
-    {
+    {       
         canDash = false;
         canJump = false;
         canRun = false;
@@ -198,19 +230,38 @@ public class PlayerMove : MonoBehaviour
     {
         actionSprint.action.performed += ctx =>
         {
-            if (canRun && groundCheck.IsGrounded())
+            if (canRun && groundCheck.IsGrounded() )
             {
-                speed = sprintMultiplier * defaultSpeed;
-                animator.SetBool("Sprint", true);
+                    isSprinting = true;   
             }
         };
 
         actionSprint.action.canceled += ctx =>
         {
-            speed = defaultSpeed;
-            animator.SetBool("Sprint", false);
-            canRun = false;
+            sprintStop();
         };
+    }
+
+
+    public void sprint()
+    {
+        if (isSprinting && canRun && stamina.UseStamina(sprintStaminaCost*Time.deltaTime))
+        {
+            speed = defaultSpeed * sprintMultiplier;
+            animator.SetBool("Sprint", true);
+        }
+        else
+        {
+            sprintStop();
+        }
+    }
+
+    public void sprintStop()
+    {
+        isSprinting = false;
+        speed = defaultSpeed;
+        animator.SetBool("Sprint", false);
+        canRun = false;
     }
     #endregion
 }
