@@ -6,22 +6,30 @@ using UnityEngine.InputSystem;
 
 public class MeleeCombat : MonoBehaviour
 {
+    public InputActionReference AttackAction;
 
-    [Header("Basic Attack")]
-    public InputActionReference AttackAction;   
-    public float basicCooldownTime;
-    public float basicStaminaCost=23f;
-    public float basicDamage;
-    public float basicAttackDuration;
+    [Header("Sword Attack")]
+    public InputActionReference switchToSword;
+    public float swordCooldownTime;
+    public float swordStaminaCost=23f;
+    public float swordDamage;
+    public float swordAttackDuration;
+
+    [Header("Dagger Attack")]
+    public InputActionReference switchToDagger;
+    public float daggerCooldownTime;
+    public float daggerStaminaCost = 12f;
+    public float daggerDamage;
+    public float daggerAttackDuration;
 
     [Header("Defense")]
     public InputActionReference DefenseAction;
     public float defenseStaminaCost = 10f;
     public float damageReduction = 0.5f;
-    
 
 
-
+    private float actualStaminaCost;
+    private bool sword=true;
     private bool Attacking;
     private bool Defending;
     
@@ -31,25 +39,55 @@ public class MeleeCombat : MonoBehaviour
     [SerializeField]Animator animator;
     [SerializeField] GroundChecker groundChecker;
     [SerializeField] StaminaScript stamina;
+    [SerializeField] GameObject swordPrefab;
+    [SerializeField] GameObject daggerPrefab;
     [SerializeField] private Collider weaponHitBox;
 
 
 
 
+    private void Start()
+    {
+        actualStaminaCost = swordStaminaCost;
+        swordPrefab.SetActive(true);
+        daggerPrefab.SetActive(false);
+        weaponHitBox.enabled = false;
+        sword = true;
+        animator.SetBool("Sword", true);
+    }
 
 
     // Update is called once per frame
     void Update()
     {
         if (CanAttack) { 
-            if (AttackAction.action.triggered && groundChecker.IsGrounded() && stamina.UseStamina(basicStaminaCost))
+            if (AttackAction.action.triggered && groundChecker.IsGrounded() && stamina.UseStamina(actualStaminaCost))
             {
-                StartCoroutine(Attack());
+                if(sword ) StartCoroutine(swordAttack()); else StartCoroutine(daggerAttack());
+
             }
         }
 
         if (groundChecker.IsGrounded()) { 
             defense();
+        }
+
+        if (switchToSword.action.triggered)
+        {
+            actualStaminaCost = swordStaminaCost;
+            sword = true;
+            animator.SetBool("Sword", true);
+            daggerPrefab.SetActive(false);
+            swordPrefab.SetActive(true);
+        }
+
+        if (switchToDagger.action.triggered)
+        {
+            actualStaminaCost = daggerStaminaCost;
+            sword = false;
+            animator.SetBool("Sword", false);
+            daggerPrefab.SetActive(true);
+            swordPrefab.SetActive(false);
         }
     }
 
@@ -71,7 +109,7 @@ public class MeleeCombat : MonoBehaviour
         };
     }
 
-    IEnumerator Attack()
+    IEnumerator swordAttack()
     {
         
         Attacking = true;
@@ -79,13 +117,29 @@ public class MeleeCombat : MonoBehaviour
         animator.SetBool("Attack",true);
         weaponHitBox.enabled = true;
 
-        yield return new WaitForSeconds(basicAttackDuration);
+        yield return new WaitForSeconds(swordAttackDuration);
         animator.SetBool("Attack", false);
         weaponHitBox.enabled = false;
-
-
-        yield return new WaitForSeconds(basicCooldownTime);
         Attacking = false;
+
+
+        yield return new WaitForSeconds(swordCooldownTime);        
+        CanAttack = true;
+    }
+
+    IEnumerator daggerAttack()
+    {
+        Attacking = true;
+        CanAttack = false;
+        animator.SetBool("Attack", true);
+        weaponHitBox.enabled = true;
+        
+        yield return new WaitForSeconds(daggerAttackDuration);
+        animator.SetBool("Attack", false);
+        weaponHitBox.enabled = false;
+        Attacking = false;
+
+        yield return new WaitForSeconds(daggerCooldownTime);
         CanAttack = true;
     }
 
