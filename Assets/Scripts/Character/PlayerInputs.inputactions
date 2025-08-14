@@ -24,7 +24,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Run",
+                    "name": "Sprint",
                     "type": "Button",
                     "id": "6138b2a6-da86-4b43-b156-59da14ca3344",
                     "expectedControlType": "Button",
@@ -47,7 +47,7 @@
                     "id": "7eec819a-771e-404b-a793-d9c0fb32c2ef",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Tap",
                     "initialStateCheck": false
                 },
                 {
@@ -149,10 +149,10 @@
                     "name": "",
                     "id": "c51534a7-7afa-4a10-af5c-a83eb5e24426",
                     "path": "<Keyboard>/leftShift",
-                    "interactions": "Hold(duration=0.3)",
+                    "interactions": "",
                     "processors": "",
                     "groups": "Keyboard and Mouse",
-                    "action": "Run",
+                    "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -171,7 +171,7 @@
                     "name": "",
                     "id": "4afd0e85-b752-46b2-aec5-7874ec4a6b36",
                     "path": "<Keyboard>/leftShift",
-                    "interactions": "Tap(duration=0.5)",
+                    "interactions": "Tap",
                     "processors": "",
                     "groups": "Keyboard and Mouse",
                     "action": "Dash",

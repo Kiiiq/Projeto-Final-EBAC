@@ -131,21 +131,23 @@ public class PlayerMove : MonoBehaviour
         Vector3 forward = camera.TransformDirection(Vector3.forward);
         Vector3 right = camera.TransformDirection(Vector3.right);
 
-        Vector3 ForwardRelative = new Vector3(forward.x, 0, forward.z)* playerInput.y;
+        Vector3 ForwardRelative = new Vector3(forward.x, 0, forward.z) * playerInput.y;
         Vector3 RightRelative = new Vector3(right.x, 0, right.z) * playerInput.x;
 
 
-        Vector3 moveDirection = ForwardRelative+RightRelative;
+        Vector3 moveDirection = ForwardRelative + RightRelative;
 
         characterController.Move(speed * Time.deltaTime * moveDirection);
         if (moveDirection != Vector3.zero)
         {
             charRotate(moveDirection);
             animator.SetBool("Run", true);
-        } else {
+        }
+        else
+        {
             animator.SetBool("Run", false);
         }
-        
+
     }
 
     public void charRotate(Vector3 vector3) { 

@@ -14,7 +14,8 @@ public class StaminaScript : MonoBehaviour
     public float currentStamina;
 
     public float timeToRegen;
-    public bool ableToRegen;
+    private bool ableToRegen;
+    public bool tired;
     public float lastUse;
 
     public float timeDiference;
@@ -32,29 +33,53 @@ public class StaminaScript : MonoBehaviour
 
     public void Update()
     {
+        Regen();
+
+    }
+
+    public void Regen() {
         if (ableToRegen)
         {
             currentStamina += staminaRegenRate * Time.deltaTime;
             currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
             updateUIRegen();
-        }
 
-        if (Time.time - lastUse >= timeToRegen)
-        {
-            ableToRegen = true;
+            if (currentStamina == maxStamina)
+            {
+                tired = false;
+            }
         }
+    }
 
-        
+    public void AbleRegen() { 
+        StartCoroutine(RegenCountdown());
+    }
+
+    private IEnumerator RegenCountdown()
+    {
+        yield return new WaitForSeconds(timeToRegen);
+        ableToRegen = true;
+    }
+
+    public void UNAbleRegen()
+    {
+        StopCoroutine(RegenCountdown());
+        ableToRegen = false;
+    }
+
+    public void InstaAbleRegen()
+    {
+        ableToRegen = true;
     }
 
     public bool UseStamina(float amount)
     {
         if (currentStamina >= amount)
         {
+            StopCoroutine(RegenCountdown());
             currentStamina -= amount;
             currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
             ableToRegen = false;
-            lastUse = Time.time;
             StartCoroutine(updateUI());
             return true;
         }

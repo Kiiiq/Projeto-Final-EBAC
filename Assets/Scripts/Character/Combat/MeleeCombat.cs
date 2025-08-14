@@ -79,6 +79,7 @@ public class MeleeCombat : MonoBehaviour
             animator.SetBool("Sword", true);
             daggerPrefab.SetActive(false);
             swordPrefab.SetActive(true);
+            weaponHitBox= swordPrefab.GetComponent<Collider>();
         }
 
         if (switchToDagger.action.triggered)
@@ -88,6 +89,7 @@ public class MeleeCombat : MonoBehaviour
             animator.SetBool("Sword", false);
             daggerPrefab.SetActive(true);
             swordPrefab.SetActive(false);
+            weaponHitBox = daggerPrefab.GetComponent<Collider>();
         }
     }
 
