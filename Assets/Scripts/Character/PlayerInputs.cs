@@ -98,6 +98,15 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Focus"",
+                    ""type"": ""Button"",
+                    ""id"": ""969b3ca0-1a79-4efd-bbf4-23a2296ecdc4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -232,6 +241,17 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""action"": ""Switch to Sword"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""eb2548bb-2f0c-43fb-8aa3-0041d2ed559d"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Focus"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -265,6 +285,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         m_PlayerControl_Defense = m_PlayerControl.FindAction("Defense", throwIfNotFound: true);
         m_PlayerControl_SwitchtoDagger = m_PlayerControl.FindAction("Switch to Dagger", throwIfNotFound: true);
         m_PlayerControl_SwitchtoSword = m_PlayerControl.FindAction("Switch to Sword", throwIfNotFound: true);
+        m_PlayerControl_Focus = m_PlayerControl.FindAction("Focus", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -334,6 +355,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControl_Defense;
     private readonly InputAction m_PlayerControl_SwitchtoDagger;
     private readonly InputAction m_PlayerControl_SwitchtoSword;
+    private readonly InputAction m_PlayerControl_Focus;
     public struct PlayerControlActions
     {
         private @PlayerInputs m_Wrapper;
@@ -346,6 +368,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         public InputAction @Defense => m_Wrapper.m_PlayerControl_Defense;
         public InputAction @SwitchtoDagger => m_Wrapper.m_PlayerControl_SwitchtoDagger;
         public InputAction @SwitchtoSword => m_Wrapper.m_PlayerControl_SwitchtoSword;
+        public InputAction @Focus => m_Wrapper.m_PlayerControl_Focus;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControl; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -379,6 +402,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @SwitchtoSword.started += instance.OnSwitchtoSword;
             @SwitchtoSword.performed += instance.OnSwitchtoSword;
             @SwitchtoSword.canceled += instance.OnSwitchtoSword;
+            @Focus.started += instance.OnFocus;
+            @Focus.performed += instance.OnFocus;
+            @Focus.canceled += instance.OnFocus;
         }
 
         private void UnregisterCallbacks(IPlayerControlActions instance)
@@ -407,6 +433,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @SwitchtoSword.started -= instance.OnSwitchtoSword;
             @SwitchtoSword.performed -= instance.OnSwitchtoSword;
             @SwitchtoSword.canceled -= instance.OnSwitchtoSword;
+            @Focus.started -= instance.OnFocus;
+            @Focus.performed -= instance.OnFocus;
+            @Focus.canceled -= instance.OnFocus;
         }
 
         public void RemoveCallbacks(IPlayerControlActions instance)
@@ -443,5 +472,6 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         void OnDefense(InputAction.CallbackContext context);
         void OnSwitchtoDagger(InputAction.CallbackContext context);
         void OnSwitchtoSword(InputAction.CallbackContext context);
+        void OnFocus(InputAction.CallbackContext context);
     }
 }

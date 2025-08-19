@@ -21,7 +21,17 @@ public class CharachterHealthManager : HealthManager
 
     public override void TakeDamage(float damage)
     {
-        currentHealth -= damage;
+        if (playerStateManager.IsDashing)
+        {
+            return; // Ignore damage if the player is invulnerable
+        }
+        if (playerStateManager.Defending && playerStateManager.stamina.UseStamina(damage*playerStateManager.DefenseStaminaCost))
+        {
+            damage *= (1 - playerStateManager.damageReduction); // Reduce damage if defending
+        }
+        else { 
+            currentHealth -= damage;
+        }
 
         StartCoroutine(updateUI());
         if (currentHealth <= 0)

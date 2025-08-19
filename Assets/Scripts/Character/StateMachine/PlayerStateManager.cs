@@ -148,14 +148,14 @@ public class PlayerStateManager : MonoBehaviour
 
     [Header("Defense")]
     
-    public float defenseStaminaCost = 10f;
+    private float defenseStaminaCost = 1f; // stamina cost per 1 damage blocked
     public float damageReduction = 0.5f;
     private float defenseSlow = 0.5f;
 
 
     private float actualStaminaCost;
     private bool sword = true;
-    [SerializeField]private bool attacking;
+    [SerializeField] private bool attacking;
     private bool defending;
 
     #region Getters/Setters
@@ -163,6 +163,8 @@ public class PlayerStateManager : MonoBehaviour
     public bool Defending { get => defending; set => defending = value; }
     public float DefenseSlow { get => defenseSlow; set => defenseSlow = value; }
     public bool Sword { get => sword; set => sword = value; }
+
+    public float DefenseStaminaCost { get => defenseStaminaCost; set => defenseStaminaCost = value; }
 
     #endregion
 
