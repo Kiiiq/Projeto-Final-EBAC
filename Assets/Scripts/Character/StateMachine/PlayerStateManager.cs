@@ -339,12 +339,12 @@ public class PlayerStateManager : MonoBehaviour
     {
         if (!focused)
         {
-            
+            animator.SetBool("Focused", true);
             cameraScript.StartCombatFocus();
         }
         else
         {
-            
+            animator.SetBool("Focused", false);
             cameraScript.StopCombatFocus();
         }
     }

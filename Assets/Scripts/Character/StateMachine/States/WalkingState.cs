@@ -33,6 +33,12 @@ public class WalkingState : PlayerStateBase
 
 
         Vector3 moveDirection = ForwardRelative + RightRelative;
+
+        Vector2 vector2 = new Vector2(moveDirection.x,moveDirection.z);
+        vector2.Normalize();
+        _playerStateManager.animator.SetFloat("FowardMove", vector2.y);
+        _playerStateManager.animator.SetFloat("LateralMove", vector2.x);
+
         if (moveDirection != Vector3.zero)
         {
             _playerStateManager.LastMoveDir = moveDirection;
