@@ -33,11 +33,21 @@ public class WalkingState : PlayerStateBase
 
 
         Vector3 moveDirection = ForwardRelative + RightRelative;
+        if (moveDirection != Vector3.zero)
+        {
+            _playerStateManager.LastMoveDir = moveDirection;
 
 
-        _playerStateManager.characterController.Move(_playerStateManager.Speed * Time.deltaTime * moveDirection);
-        
-        if (moveDirection!=Vector3.zero) _playerStateManager.playerSprite.transform.forward = moveDirection;
+            _playerStateManager.characterController.Move(_playerStateManager.Speed * Time.deltaTime * moveDirection);
+            if (_playerStateManager.focused)
+            {
+                _playerStateManager.playerSprite.transform.forward = new Vector3(_playerStateManager.playerCamera.forward.x, 0, _playerStateManager.playerCamera.forward.z); // Keep the player facing the camera direction in combat focus
+            }
+            else
+            {
+                _playerStateManager.playerSprite.transform.forward = moveDirection;
+            }
+        }
 
 
 

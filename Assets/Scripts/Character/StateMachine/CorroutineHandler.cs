@@ -44,7 +44,7 @@ public class CorroutineHandler : MonoBehaviour
             _playerStateManager.animator.Play("Dash");
             
             _playerStateManager.player.transform.DOMove(
-                _playerStateManager.player.transform.position + (_playerStateManager.playerSprite.transform.forward * _playerStateManager.DashMultiplier*_playerStateManager.DefaultSpeed)/3,
+                _playerStateManager.player.transform.position + (_playerStateManager.LastMoveDir * _playerStateManager.DashMultiplier*_playerStateManager.DefaultSpeed)/3,
                 _playerStateManager.DashTime
             ).SetEase(Ease.InCubic);
 

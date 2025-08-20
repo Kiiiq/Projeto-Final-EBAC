@@ -85,6 +85,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Focus Next",
+                    "type": "Button",
+                    "id": "85827542-eda5-495c-b973-c012166708da",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Focus Previous",
+                    "type": "Button",
+                    "id": "e3ac6c9d-5db7-4b0b-a352-2ccb1ee5f1cc",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -228,6 +246,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Focus",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2f93cbdf-8178-41b2-a52a-c047aeb17902",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Focus Next",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "417d5fb6-0120-44ba-b752-f96a6e589b1a",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Focus Previous",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

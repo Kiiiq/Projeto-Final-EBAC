@@ -107,6 +107,24 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Focus Next"",
+                    ""type"": ""Button"",
+                    ""id"": ""85827542-eda5-495c-b973-c012166708da"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Focus Previous"",
+                    ""type"": ""Button"",
+                    ""id"": ""e3ac6c9d-5db7-4b0b-a352-2ccb1ee5f1cc"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -252,6 +270,28 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""action"": ""Focus"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2f93cbdf-8178-41b2-a52a-c047aeb17902"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Focus Next"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""417d5fb6-0120-44ba-b752-f96a6e589b1a"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Focus Previous"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -286,6 +326,8 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         m_PlayerControl_SwitchtoDagger = m_PlayerControl.FindAction("Switch to Dagger", throwIfNotFound: true);
         m_PlayerControl_SwitchtoSword = m_PlayerControl.FindAction("Switch to Sword", throwIfNotFound: true);
         m_PlayerControl_Focus = m_PlayerControl.FindAction("Focus", throwIfNotFound: true);
+        m_PlayerControl_FocusNext = m_PlayerControl.FindAction("Focus Next", throwIfNotFound: true);
+        m_PlayerControl_FocusPrevious = m_PlayerControl.FindAction("Focus Previous", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -356,6 +398,8 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerControl_SwitchtoDagger;
     private readonly InputAction m_PlayerControl_SwitchtoSword;
     private readonly InputAction m_PlayerControl_Focus;
+    private readonly InputAction m_PlayerControl_FocusNext;
+    private readonly InputAction m_PlayerControl_FocusPrevious;
     public struct PlayerControlActions
     {
         private @PlayerInputs m_Wrapper;
@@ -369,6 +413,8 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         public InputAction @SwitchtoDagger => m_Wrapper.m_PlayerControl_SwitchtoDagger;
         public InputAction @SwitchtoSword => m_Wrapper.m_PlayerControl_SwitchtoSword;
         public InputAction @Focus => m_Wrapper.m_PlayerControl_Focus;
+        public InputAction @FocusNext => m_Wrapper.m_PlayerControl_FocusNext;
+        public InputAction @FocusPrevious => m_Wrapper.m_PlayerControl_FocusPrevious;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControl; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -405,6 +451,12 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Focus.started += instance.OnFocus;
             @Focus.performed += instance.OnFocus;
             @Focus.canceled += instance.OnFocus;
+            @FocusNext.started += instance.OnFocusNext;
+            @FocusNext.performed += instance.OnFocusNext;
+            @FocusNext.canceled += instance.OnFocusNext;
+            @FocusPrevious.started += instance.OnFocusPrevious;
+            @FocusPrevious.performed += instance.OnFocusPrevious;
+            @FocusPrevious.canceled += instance.OnFocusPrevious;
         }
 
         private void UnregisterCallbacks(IPlayerControlActions instance)
@@ -436,6 +488,12 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Focus.started -= instance.OnFocus;
             @Focus.performed -= instance.OnFocus;
             @Focus.canceled -= instance.OnFocus;
+            @FocusNext.started -= instance.OnFocusNext;
+            @FocusNext.performed -= instance.OnFocusNext;
+            @FocusNext.canceled -= instance.OnFocusNext;
+            @FocusPrevious.started -= instance.OnFocusPrevious;
+            @FocusPrevious.performed -= instance.OnFocusPrevious;
+            @FocusPrevious.canceled -= instance.OnFocusPrevious;
         }
 
         public void RemoveCallbacks(IPlayerControlActions instance)
@@ -473,5 +531,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         void OnSwitchtoDagger(InputAction.CallbackContext context);
         void OnSwitchtoSword(InputAction.CallbackContext context);
         void OnFocus(InputAction.CallbackContext context);
+        void OnFocusNext(InputAction.CallbackContext context);
+        void OnFocusPrevious(InputAction.CallbackContext context);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Cinemachine;
 using UnityEngine.Windows.Speech;
 
 public class PlayerStateManager : MonoBehaviour
@@ -20,12 +21,14 @@ public class PlayerStateManager : MonoBehaviour
     public StaminaScript stamina;
     public CorroutineHandler corroutineHandler;
     public HealthManager healthManager;
-    [SerializeField] public GameObject swordPrefab;
-    [SerializeField] public GameObject daggerPrefab;
+
+    [SerializeField] public CinemachineVirtualCamera combatCamera;
+    [SerializeField] public CinemachineFreeLook explorationCamera;
+    [SerializeField] public CameraScript cameraScript;
+
     [SerializeField] public GameObject player;
 
     [SerializeField] public List<WeaponSO> Weapons = new List<WeaponSO>();
-    [SerializeField] private List<GameObject> weapons = new List<GameObject>();
     [SerializeField] private GameObject parentObject;
     [SerializeField] public WeaponSO currentWeapon;
     [SerializeField]private int currentIndex = 0;
@@ -112,6 +115,8 @@ public class PlayerStateManager : MonoBehaviour
     [SerializeField] float dashStaminaCost = 15f;
     [SerializeField] bool isDashing;
     [SerializeField] bool canDash = true;
+    [SerializeField] Vector3 lastMoveDir;
+
 
     #region Getters/Setters
     public float DashMultiplier { get => dashMultiplier;}
@@ -121,6 +126,8 @@ public class PlayerStateManager : MonoBehaviour
     public bool IsDashing { get => isDashing; set => isDashing = value; }
     public bool CanDash { get => canDash; set => canDash = value; }
 
+    public Vector3 LastMoveDir { get => lastMoveDir; set => lastMoveDir = value; }
+
     #endregion
 
     #endregion
@@ -128,21 +135,21 @@ public class PlayerStateManager : MonoBehaviour
     #region Combat
 
 
+    public bool focused = false;
 
+    //[Header("Sword Attack")]
 
-    [Header("Sword Attack")]
-    
-    public float swordCooldownTime;
-    public float swordStaminaCost = 23f;
-    public float swordDamage;
-    public float swordAttackDuration;
+    //public float swordCooldownTime;
+    //public float swordStaminaCost = 23f;
+    //public float swordDamage;
+    //public float swordAttackDuration;
 
-    [Header("Dagger Attack")]
-   
-    public float daggerCooldownTime;
-    public float daggerStaminaCost = 12f;
-    public float daggerDamage;
-    public float daggerAttackDuration;
+    //[Header("Dagger Attack")]
+
+    //public float daggerCooldownTime;
+    //public float daggerStaminaCost = 12f;
+    //public float daggerDamage;
+    //public float daggerAttackDuration;
 
     public bool CanAttack = true;
 
@@ -208,6 +215,8 @@ public class PlayerStateManager : MonoBehaviour
         input.PlayerControl.SwitchtoDagger.canceled += OnSwitchToDaggerInput;
         input.PlayerControl.Defense.performed += OnDefenseInput;
         input.PlayerControl.Defense.canceled += OnDefenseInput;
+        input.PlayerControl.Focus.performed += OnFocusInput;
+        input.PlayerControl.Focus.canceled += OnFocusInput;
 
     }
 
@@ -276,6 +285,15 @@ public class PlayerStateManager : MonoBehaviour
         }
     }
 
+    public void OnFocusInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            ToggleFocus();
+        }
+        
+    }
+
     public void OnJumpInput(InputAction.CallbackContext context)
     {
         _JumpButtonPressed = context.ReadValueAsButton();
@@ -289,6 +307,22 @@ public class PlayerStateManager : MonoBehaviour
 
     }
 
+    public void OnNextFocusInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            cameraScript.NextEnemy();
+        }
+    }
+
+    public void OnPreviousFocusInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            cameraScript.PreviousEnemy();
+        }
+    }
+
     private void Update()
     {
         currentState.OnStateUpdate();
@@ -299,6 +333,20 @@ public class PlayerStateManager : MonoBehaviour
     public void Die()
     {
         currentState = states.DeadState();
+    }
+
+    public void ToggleFocus()
+    {
+        if (!focused)
+        {
+            
+            cameraScript.StartCombatFocus();
+        }
+        else
+        {
+            
+            cameraScript.StopCombatFocus();
+        }
     }
 }
     
